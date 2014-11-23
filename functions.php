@@ -513,3 +513,164 @@ require get_template_directory() . '/inc/customizer.php';
 if ( ! class_exists( 'Featured_Content' ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 	require get_template_directory() . '/inc/featured-content.php';
 }
+
+add_action( 'init', 'my_custom_init' );
+
+function my_custom_init() {
+
+    $labels = array( 
+        'name' => _x( 'メディア', 'media' ),
+        'singular_name' => _x( 'メディア', 'media' ),
+        'add_new' => _x( 'Add New', 'media' ),
+        'add_new_item' => _x( 'Add New MEDIA', 'media' ),
+        'edit_item' => _x( 'Edit MEDIA', 'media' ),
+        'new_item' => _x( 'New MEDIA', 'media' ),
+        'view_item' => _x( 'View MEDIA', 'media' ),
+        'search_items' => _x( 'Search MEDIA', 'media' ),
+        'not_found' => _x( 'No media found', 'media' ),
+        'not_found_in_trash' => _x( 'No media found in Trash', 'media' ),
+        'parent_item_colon' => _x( 'Parent MEDIA:', 'media' ),
+        'menu_name' => _x( 'メディア', 'media' ),
+    );
+
+    $args = array( 
+        'labels' => $labels,
+        'hierarchical' => false,
+        
+        'supports' => array( 'title', 'editor', 'thumbnail' ),
+        'taxonomies' => array( 'post_tag' ),
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        
+        
+        'show_in_nav_menus' => true,
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+        'has_archive' => true,
+        'query_var' => true,
+        'can_export' => true,
+        'rewrite' => true,
+        'capability_type' => 'post'
+    );
+
+    register_post_type( 'media', $args );
+
+    $labels = array( 
+        'name' => _x( 'インフォメーション', 'information' ),
+        'singular_name' => _x( 'インフォメーション', 'information' ),
+        'add_new' => _x( 'Add New', 'information' ),
+        'add_new_item' => _x( 'Add New インフォメーション', 'information' ),
+        'edit_item' => _x( 'Edit インフォメーション', 'information' ),
+        'new_item' => _x( 'New インフォメーション', 'information' ),
+        'view_item' => _x( 'View インフォメーション', 'information' ),
+        'search_items' => _x( 'Search インフォメーション', 'information' ),
+        'not_found' => _x( 'No インフォメーション found', 'information' ),
+        'not_found_in_trash' => _x( 'No インフォメーション found in Trash', 'information' ),
+        'parent_item_colon' => _x( 'Parent インフォメーション:', 'information' ),
+        'menu_name' => _x( 'インフォメーション', 'information' ),
+    );
+
+    $args = array( 
+        'labels' => $labels,
+        'hierarchical' => true,
+        
+        'supports' => array( 'title', 'editor', 'thumbnail' ),
+        'taxonomies' => array( 'post_tag' ),
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        
+        
+        'show_in_nav_menus' => true,
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+        'has_archive' => true,
+        'query_var' => true,
+        'can_export' => true,
+        'rewrite' => true,
+        'capability_type' => 'post'
+    );
+
+    register_post_type( 'information', $args );
+
+    $labels = array( 
+        'name' => _x( 'ブランド', 'brand' ),
+        'singular_name' => _x( 'ブランド', 'brand' ),
+        'add_new' => _x( 'Add New', 'brand' ),
+        'add_new_item' => _x( 'Add New ブランド', 'brand' ),
+        'edit_item' => _x( 'Edit ブランド', 'brand' ),
+        'new_item' => _x( 'New ブランド', 'brand' ),
+        'view_item' => _x( 'View ブランド', 'brand' ),
+        'search_items' => _x( 'Search ブランド', 'brand' ),
+        'not_found' => _x( 'No ブランド found', 'brand' ),
+        'not_found_in_trash' => _x( 'No ブランド found in Trash', 'brand' ),
+        'parent_item_colon' => _x( 'Parent ブランド:', 'brand' ),
+        'menu_name' => _x( 'ブランド', 'brand' ),
+    );
+
+    $args = array( 
+        'labels' => $labels,
+        'hierarchical' => false,
+        
+        'supports' => array( 'title', 'editor' ),
+        'taxonomies' => array( 'post_tag' ),
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        
+        
+        'show_in_nav_menus' => true,
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+        'has_archive' => true,
+        'query_var' => true,
+        'can_export' => true,
+        'rewrite' => true,
+        'capability_type' => 'post'
+    );
+
+    register_post_type( 'brand', $args );
+
+/*
+	//カスタムタクソノミー
+	register_taxonomy(
+		'media-tag',
+		'media',
+		array(
+			'hierarchical' => false,
+			'update_count_callback' => '_update_post_term_count',
+			'label' => 'MEDIA',
+			'singular_label' => 'MEDIA',
+			'public' => true,
+			'show_ui' => true
+		)
+	);
+*/
+}
+
+// アイコンを追加
+function add_menu_icons_styles(){
+     echo '<style>
+          #adminmenu #menu-posts-team div.wp-menu-image:before {
+               content: "\f307";
+          }
+     </style>';
+}
+add_action( 'admin_head', 'add_menu_icons_styles' );
+
+// サムネイル画像を利用
+add_theme_support( 'post-thumbnails', array( 'media', 'information', 'product' ) );
+set_post_thumbnail_size( 50, 50 );
+ 
+// add_theme_support( 'post-thumbnails', array( 'information' ) );
+// set_post_thumbnail_size( 150, 150, true );
+
+// トップページの新着情報にカスタム投稿を含める（投稿は外す）
+function chample_latest_posts( $wp_query ) {
+    if ( is_home() && ! isset( $wp_query->query_vars['suppress_filters'] ) ) {
+        $wp_query->query_vars['post_type'] = array( /*'post',*/ 'media', 'information', 'product' );
+    }
+}
+add_action( 'parse_query', 'chample_latest_posts' );
+
