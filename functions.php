@@ -573,7 +573,7 @@ function my_custom_init() {
 
     $args = array( 
         'labels' => $labels,
-        'hierarchical' => true,
+        'hierarchical' => false,
         
         'supports' => array( 'title', 'editor', 'thumbnail' ),
         'taxonomies' => array( 'post_tag' ),
@@ -593,6 +593,45 @@ function my_custom_init() {
     );
 
     register_post_type( 'information', $args );
+
+add_action( 'init', 'register_cpt_product' );
+
+    $labels = array( 
+        'name' => _x( '商品', 'product' ),
+        'singular_name' => _x( '商品', 'product' ),
+        'add_new' => _x( 'Add New', 'product' ),
+        'add_new_item' => _x( 'Add New 商品', 'product' ),
+        'edit_item' => _x( 'Edit 商品', 'product' ),
+        'new_item' => _x( 'New 商品', 'product' ),
+        'view_item' => _x( 'View 商品', 'product' ),
+        'search_items' => _x( 'Search 商品', 'product' ),
+        'not_found' => _x( 'No 商品 found', 'product' ),
+        'not_found_in_trash' => _x( 'No 商品 found in Trash', 'product' ),
+        'parent_item_colon' => _x( 'Parent 商品:', 'product' ),
+        'menu_name' => _x( '商品', 'product' ),
+    );
+
+    $args = array( 
+        'labels' => $labels,
+        'hierarchical' => false,
+        'supports' => array( 'title', 'custom-fields' ),
+        'taxonomies' => array( 'post_tag' ),
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        
+        
+        'show_in_nav_menus' => true,
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+        'has_archive' => true,
+        'query_var' => true,
+        'can_export' => true,
+        'rewrite' => true,
+        'capability_type' => 'post'
+    );
+
+    register_post_type( 'product', $args );
 
     $labels = array( 
         'name' => _x( 'ブランド', 'brand' ),
@@ -614,7 +653,7 @@ function my_custom_init() {
         'hierarchical' => false,
         
         'supports' => array( 'title', 'editor' ),
-        'taxonomies' => array( 'post_tag' ),
+//        'taxonomies' => array( 'post_tag' ),
         'public' => true,
         'show_ui' => true,
         'show_in_menu' => true,
@@ -662,9 +701,8 @@ add_action( 'admin_head', 'add_menu_icons_styles' );
 // サムネイル画像を利用
 add_theme_support( 'post-thumbnails', array( 'media', 'information', 'product' ) );
 set_post_thumbnail_size( 50, 50 );
- 
-// add_theme_support( 'post-thumbnails', array( 'information' ) );
-// set_post_thumbnail_size( 150, 150, true );
+// 詳細ページの画像サイズ
+// add_image_size('custom_size', 150, 150, true);
 
 // トップページの新着情報にカスタム投稿を含める（投稿は外す）
 function chample_latest_posts( $wp_query ) {

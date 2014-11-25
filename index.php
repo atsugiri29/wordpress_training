@@ -16,6 +16,13 @@
 
 get_header(); ?>
 
+<table cellpadding="0" cellspacing="0"><tbody>
+<tr>
+<td width="250">
+<?php get_sidebar(); ?>
+</td>
+<td>
+
 <div id="main-content" class="main-content">
 
 <?php
@@ -30,8 +37,8 @@ get_header(); ?>
 
 
 
-
-<ul>
+			<h2>NEWS</h2>
+			<ul>
 			    <?php $args = array(
 			        'numberposts' => 5,                //表示（取得）する記事の数
 			        'post_type' => array( /*'post',*/ 'media', 'information', 'product' ),    //投稿タイプの指定
@@ -39,7 +46,7 @@ get_header(); ?>
 			    );
 			    $customPosts = get_posts($args);
 			    if($customPosts) : foreach($customPosts as $post) : setup_postdata( $post ); ?>
-						<p></p>
+						<div>
 						<?php the_post_thumbnail(array(68,68)); ?>
 						<?php echo get_the_date("Y.n.j"); ?>
 						<br>
@@ -48,8 +55,9 @@ get_header(); ?>
 						<?php for($cnt = 0; $cnt < count($tags); $cnt++) { ?>
 							<?php echo $tags[$cnt]->name, " "; ?>
 						<?php } ?>
+						</div>
 
-						<p></p>
+						<div>
 						<u><b><a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></b></u>
 				<?php /*
 					    <?php the_excerpt(); ?>
@@ -57,11 +65,13 @@ get_header(); ?>
 				*/ ?>
 						<br>
 						<?php echo mb_substr ( get_the_content() , 0, 150 ), "..."; ?>
+						</div>
+						<p></p>
 				<?php /*
 				        <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
 				*/ ?>
 				    <?php endforeach; ?>
-</ul>
+			</ul>
 
 
 
@@ -77,7 +87,11 @@ get_header(); ?>
 	<?php get_sidebar( 'content' ); ?>
 </div><!-- #main-content -->
 
+</td>
+</tr>
+</tbody></table>
+
 <?php
-get_sidebar();
+// get_sidebar();
 get_footer();
 ?>
