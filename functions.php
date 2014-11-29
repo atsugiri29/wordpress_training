@@ -538,7 +538,7 @@ function my_custom_init() {
         'hierarchical' => false,
         
         'supports' => array( 'title', 'editor', 'thumbnail' ),
-        'taxonomies' => array( 'post_tag' ),
+        'taxonomies' => array( 'brand-tag' ),
         'public' => true,
         'show_ui' => true,
         'show_in_menu' => true,
@@ -576,7 +576,7 @@ function my_custom_init() {
         'hierarchical' => false,
         
         'supports' => array( 'title', 'editor', 'thumbnail' ),
-        'taxonomies' => array( 'post_tag' ),
+        'taxonomies' => array( 'brand-tag' ),
         'public' => true,
         'show_ui' => true,
         'show_in_menu' => true,
@@ -615,7 +615,7 @@ add_action( 'init', 'register_cpt_product' );
         'labels' => $labels,
         'hierarchical' => false,
         'supports' => array( 'title', 'custom-fields' ),
-        'taxonomies' => array( 'post_tag' ),
+        'taxonomies' => array( /*'brand-tag',*/ 'product-tag' ),
         'public' => true,
         'show_ui' => true,
         'show_in_menu' => true,
@@ -671,21 +671,33 @@ add_action( 'init', 'register_cpt_product' );
 
     register_post_type( 'brand', $args );
 
-/*
-	//カスタムタクソノミー
+	// カスタム分類
 	register_taxonomy(
-		'media-tag',
-		'media',
+		'brand-tag',
+		array( 'media', 'information', 'product' ),
 		array(
 			'hierarchical' => false,
-			'update_count_callback' => '_update_post_term_count',
-			'label' => 'MEDIA',
-			'singular_label' => 'MEDIA',
-			'public' => true,
-			'show_ui' => true
+			'label' => 'ブランドタグ',
 		)
 	);
-*/
+	register_taxonomy_for_object_type( 'brand-tag', 'media' );
+	register_taxonomy_for_object_type( 'brand-tag', 'information' );
+	register_taxonomy_for_object_type( 'brand-tag', 'product' );
+
+	register_taxonomy(
+		'product-tag',
+		'product',
+		array(
+			'hierarchical' => true,
+//			'update_count_callback' => '_update_post_term_count',
+			'label' => '商品カテゴリ',
+//			'singular_label' => '商品カテゴリ(singlarラベル)',
+//			'public' => true,
+//			'show_ui' => true
+		)
+	);
+	register_taxonomy_for_object_type( 'product-tag', 'product' );
+
 }
 
 // アイコンを追加
@@ -711,4 +723,104 @@ function chample_latest_posts( $wp_query ) {
     }
 }
 add_action( 'parse_query', 'chample_latest_posts' );
+
+/*
+// カスタム分類の編集ページにカスタムフィールドを追加
+add_action ( 'product-tag_add_form_fields', 'extra_taxonomy_fields');
+
+// セレクトボックスを設置
+function extra_taxonomy_fields( $tag ) {
+//$t_id = $tag->term_id;
+//$cat_meta = get_option( "cat_$t_id");
+
+//       $id = get_the_ID();
+       //カスタムフィールドの値を取得
+//       $paka3select = get_post_meta($id,'paka3select',true);
+        $data = array(
+//             array("選択してください","",""),
+             array("選択してください","","selected"),
+//         array("よいよい","よいよい",""),
+         );
+		$args = array(
+			'orderby' 	=> 'name',
+			'order'		=> 'ASC',
+			'get'		=> 'all',
+		);
+		$tags = get_terms( 'brand-tag' );
+		foreach ( $tags as $tag )
+        	array_push($data, array( $tag->name, $tag->name, "" ));
+
+        echo <<<EOS
+        ブランド<br>
+        <select name="Cat_meta[select]">
+EOS;
+        foreach($data as $d){
+//        if($d[1]==$paka3select) $d[2] ="selected";
+        	echo <<<EOS
+			<option value="{$d[1]}" {$d[2]}>{$d[0]}
+EOS;
+		}
+       	echo <<<EOS
+		</select>
+EOS;
+}
+
+add_action ( 'edited_term', 'save_extra_taxonomy_fileds');
+
+// 追加情報を保存する
+function save_extra_taxonomy_fileds( $term_id ) {
+	if ( isset( $_POST['Cat_meta'] ) ) {
+		$t_id = $term_id;
+		$cat_meta = get_option( "cat_$t_id");
+		$cat_keys = array_keys($_POST['Cat_meta']);
+		foreach ($cat_keys as $key){
+			if (isset($_POST['Cat_meta'][$key])){
+				$cat_meta[$key] = $_POST['Cat_meta'][$key];
+			}
+		}
+		update_option( "cat_$t_id", $cat_meta );
+	}
+}
+
+/*
+add_action('admin_print_scripts', 'my_admin_scripts');
+add_action('admin_print_styles', 'my_admin_styles');
+
+function my_admin_scripts() {
+global $taxonomy;
+if( 'タクソノミー名' == $taxonomy ) {
+wp_enqueue_script('media-upload');
+wp_enqueue_script('thickbox');
+wp_register_script('my-upload', get_bloginfo('template_directory') .'/js/upload.js');
+wp_enqueue_script('my-upload');
+}
+}
+function my_admin_styles() {
+global $taxonomy;
+if( 'タクソノミー名' == $taxonomy ) {
+wp_enqueue_style('thickbox');
+}
+}
+*/
+
+// ブランド選択セレクトボックスの項目設定
+function my_acf_load_field_brand_select( $field ){
+	$field['choices'] = array();
+/*
+	$the_args = array('post_type' => '●●');
+	$the_query = new WP_Query($the_args);
+	while ( $the_query->have_posts() ) : $the_query->the_post();
+*/
+	$args = array(
+		'orderby' 	=> 'name',
+		'order'		=> 'ASC',
+		'get'		=> 'all',
+	);
+	$tags = get_terms( 'brand-tag' );
+	foreach ( $tags as $tag )
+		$field['choices'][ $tag->name ] = $tag->name;
+	wp_reset_postdata();
+	return $field;
+}
+add_filter('acf/load_field/name=select_brand-tag_in_product-tag', 'my_acf_load_field_brand_select'); 
 

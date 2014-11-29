@@ -18,10 +18,10 @@ get_header(); ?>
 
 <table cellpadding="0" cellspacing="0"><tbody>
 <tr>
-<td width="250">
+<td width="250" valign="top">
 <?php get_sidebar(); ?>
 </td>
-<td>
+<td valign="top">
 
 <div id="main-content" class="main-content">
 
@@ -40,7 +40,7 @@ get_header(); ?>
 			<h2>NEWS</h2>
 			<ul>
 			    <?php $args = array(
-			        'numberposts' => 5,                //表示（取得）する記事の数
+			        'numberposts' => 3,                //表示（取得）する記事の数
 			        'post_type' => array( /*'post',*/ 'media', 'information', 'product' ),    //投稿タイプの指定
 
 			    );
