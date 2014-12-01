@@ -824,3 +824,41 @@ function my_acf_load_field_brand_select( $field ){
 }
 add_filter('acf/load_field/name=select_brand-tag_in_product-tag', 'my_acf_load_field_brand_select'); 
 
+
+// 特定の商品カテゴリに属する商品を全て表示する
+function display_products($productTagName /* (文字列)商品カテゴリ名 */) {
+
+	// 該当の商品を全て取得
+	$args = array(
+	    'post_type' => 'product',
+//	    'posts_per_page' => 10,
+	    'posts_per_page' => 100,
+	    'tax_query' => array(
+			array(
+				'taxonomy' => 'product-tag', //(string) - タクソノミー。
+				'field' => 'slug', //(string) - IDかスラッグのどちらでタクソノミー項を選択するか
+				'terms' => $productTagName, //(int/string/array) - タクソノミー項
+				'include_children' => true, //(bool) - 階層構造を持ったタクソノミーの場合に、子タクソノミー項を含めるかどうか。デフォルトはtrue
+			)
+		)
+	);
+	$loop = new WP_Query($args);
+	if ( $loop->have_posts() ) {
+		echo '<table>';
+		$postCount = 0; // 表示した商品をカウント
+		$POSTS_PER_ROW = 2; // 一行あたりに表示する商品数
+		while($loop->have_posts()) {
+			$loop->the_post();
+			if( $postCount % $POSTS_PER_ROW == 0 ) echo '<tr>';
+			echo '<td>';
+				$thumbnail = wp_get_attachment_image_src(post_custom('画像1'),'thumbnail' );
+				echo '<img src="' . $thumbnail[0] . '" /><br>';
+				the_title();
+			echo '</td>';
+			if( $postCount++ % $POSTS_PER_ROW == $POSTS_PER_ROW - 1 ) echo '</tr>';
+		}
+		echo '</table>';
+	}
+
+}
+

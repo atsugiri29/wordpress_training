@@ -40,7 +40,7 @@ get_header(); ?>
 			<h2>NEWS</h2>
 			<ul>
 			    <?php $args = array(
-			        'numberposts' => 3,                //表示（取得）する記事の数
+			        'numberposts' => 20,                //表示（取得）する記事の数
 			        'post_type' => array( /*'post',*/ 'media', 'information', 'product' ),    //投稿タイプの指定
 
 			    );
@@ -59,10 +59,6 @@ get_header(); ?>
 
 						<div>
 						<u><b><a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></b></u>
-				<?php /*
-					    <?php the_excerpt(); ?>
-						<?php echo get_the_excerpt(); ?>
-				*/ ?>
 						<br>
 						<?php echo mb_substr ( get_the_content() , 0, 150 ), "..."; ?>
 						</div>

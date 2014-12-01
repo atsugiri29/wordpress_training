@@ -35,13 +35,22 @@
 	<div>
 		<p></p>
 		<ul>
-			<?php if( is_singular('product')) : ?>
+			<?php if(is_singular('product') || is_tax( 'product-tag' )) : ?>
 				<!-- // 商品ページ -->
-				<?php if ( have_posts() ) : while ( have_posts() ) : the_post();					// ブランド名を表示
-					$tags = get_the_terms( $post->ID, 'brand-tag' );
-					if(count($tags) == 1) {
-						foreach ( $tags as $bTag ); // $bTagのセットのための空ループ
+				<?php
+					// ブランド名を取得
+					if(is_singular('product')) {
+						if ( have_posts() ) {
+							the_post();
+							$terms = get_the_terms( $post->ID, 'brand-tag' );
+							if(count($terms) == 1)
+								foreach ( $terms as $term ); // $termのセットのための空ループ
+							$brandName = $term->name;
+						}
+					} else {
+						$brandName = get_field('select_brand-tag_in_product-tag', 'product-tag_' . $wp_query->get_queried_object()->term_id);
 					}
+					
 					echo 'PRODUCT<br>';
 
 					// 商品カテゴリを表示
@@ -52,22 +61,23 @@
 						'get'		=> 'all',
 						'parent'	=> 0,
 					);
-					$tags = get_terms( 'product-tag', $args );
-					if(count($tags) > 0)
-						foreach ( $tags as $tag ) {
+					$terms = get_terms( 'product-tag', $args );
+					if(count($terms) > 0)
+						foreach ( $terms as $term ) {
 							// 商品カテゴリに付いたブランドタグが商品のブランド名と一致するもののみ処理
-							if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $tag->term_id) == $bTag->name) {
-								// 最上層の商品カテゴリを表示
-								echo '　', $tag->name, '<br>';
-								// 子の商品カテゴリを取得して表示
-								$args['parent'] = (int)$tag->term_id;
-								$cTags = get_terms( 'product-tag', $args );
-								if(count($cTags) > 0)
-									foreach ( $cTags as $cTag )
-										echo '　　', $cTag->name, '<br>';
+							if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $term->term_id) == $brandName) {
+
+								// 最上層の商品カテゴリのリンクを設置
+								echo '　', '<a href="' . get_term_link( $term ) . '">' . $term->name . '</a>', '<br>';
+								// 子の商品カテゴリを取得してリンクを設置
+								$args['parent'] = (int)$term->term_id;
+								$cTerms = get_terms( 'product-tag', $args );
+								if(count($cTerms) > 0)
+									foreach ( $cTerms as $cTerm )
+										echo '　　', '<a href="' . get_term_link( $cTerm ) . '">' . $cTerm->name . '</a>', '<br>';
 							}
 						}
-				endwhile; endif; ?>
+					?>
 			<?php else : ?>
 				<!-- // 商品ページ以外 -->
 				<?php if ( !is_home() && !is_front_page() ) : ?>

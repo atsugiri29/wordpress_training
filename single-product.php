@@ -8,6 +8,7 @@
 <div id="main" role="main">
      <div class="page-wrap">
      
+     <?php have_posts(); // この行がないと記事が表示されない不具合。原因不明 ?>
      <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
           <div class="page-title">
                <h1><?php the_title(); ?></h1>
@@ -19,6 +20,7 @@
                     <div class="col span_9">
 
 						<div>
+						
 <?php if(get_post_meta($post->ID, '画像1', true)): ?><a href="<?php $Image = wp_get_attachment_image_src(get_post_meta($post->ID, '画像1', true), 'full'); echo $Image[0]; ?>" class="lightbox"><?php echo wp_get_attachment_image(get_post_meta($post->ID, '画像1', true),'custom_size'); ?></a><?php else : ?><?php endif; ?>						<?php echo get_the_date("Y.n.j"); ?>
 						<br>
 
@@ -28,12 +30,6 @@
 						<?php } ?>
 						</div>
 
-						<div>
-				<?php /*
-					    <?php the_excerpt(); ?>
-						<?php echo get_the_excerpt(); ?>
-				*/ ?>
-						</div>
 						<p></p>
 
                     </div>
