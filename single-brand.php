@@ -1,58 +1,161 @@
 <?php get_header(); ?>
-<table cellpadding="0" cellspacing="0"><tbody>
-<tr>
-<td width="250">
-<?php get_sidebar(); ?>
-</td>
-<td>
-<div id="main" role="main">
-     <div class="page-wrap">
-     
-     <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
-          <div class="page-title">
-               <h1><?php the_title(); ?></h1>
-          </div>
-          
-          <article class="container">
-               <div class="author row">
-                    <div class="col span_3 author-img"><?php the_post_thumbnail(); ?></div>
-                    <div class="col span_9">
 
-						<div>
-<?php if(get_post_meta($post->ID, '画像1', true)): ?><a href="<?php $Image = wp_get_attachment_image_src(get_post_meta($post->ID, '画像1', true), 'full'); echo $Image[0]; ?>" class="lightbox"><?php echo wp_get_attachment_image(get_post_meta($post->ID, '画像1', true),'custom_size'); ?></a><?php else : ?><?php endif; ?>						<?php echo get_the_date("Y.n.j"); ?>
-						<br>
+<div id="main-content" class="main-content">
 
-						<?php $tags = wp_get_post_tags( $post->ID ); ?>
-						<?php for($cnt = 0; $cnt < count($tags); $cnt++) { ?>
-							<?php echo $tags[$cnt]->name, " "; ?>
-						<?php } ?>
-						</div>
+<?php
+	if ( is_front_page() && twentyfourteen_has_featured_posts() ) {
+		// Include the featured content template.
+		get_template_part( 'featured-content' );
+	}
+?>
+<?php /*
+	<div id="primary" class="content-area">
+*/ ?>
+		<div id="content" class="site-content" role="main">
 
-						<div>
-				<?php /*
-					    <?php the_excerpt(); ?>
-						<?php echo get_the_excerpt(); ?>
-				*/ ?>
-						</div>
-						<p></p>
 
-                    </div>
-               </div>
-               <!-- /.row -->
+
+		<table><tr valign="top"><td>
+<?php
+		have_posts(); // この行がないと記事が表示されない不具合。原因不明
+
+		// URL末尾の「?page_type=」で設定された値を取得
+		parse_str($_SERVER['QUERY_STRING'], $strs);
+		if(count($strs) > 0)
+			$pageType = $strs['page_type'];
+		if($pageType == 'description') {
+
+			// ブランド説明のページ
+			if ( have_posts() ) : while ( have_posts() ) : the_post();
+?>
+	        <div class="page-title">
+	             <h1><?php the_title(); echo 'とは'; ?></h1>
+	        </div>
+	        <article class="container">
+				<?php the_content(); ?>
+			</article>
+<?php
+			endwhile; endif;
+		} else if($pageType == 'news') {
+
+			// ブランドの記事一覧のページ
+			echo '<h1>'; the_title(); echo '</h1><p></p>';
+?>
+			<ul>
+<?php
+				// 記事を取得して表示
+				$args = array(
+				    'post_type' => array( 'media', 'information' ),
+				    'posts_per_page' => 100,
+				    'tax_query' => array(
+						array(
+							'taxonomy' => 'brand-tag',
+							'field' => 'slug',
+							'terms' => getBrandName(),
+						)
+					)
+				);
+				$loop = new WP_Query($args);
+				if ( $loop->have_posts() ) : while($loop->have_posts()) : $loop->the_post();
+					printPost();
+				endwhile; endif;
+?>
+			</ul>
+<?php
+ 		} else if($pageType == 'products') {
+
+			// ブランドの商品一覧のページ
+			echo '<h1>製品一覧</h1><p></p>';
+			// 最上層の商品カテゴリを取得
+			$args = array(
+				'orderby' 	=> 'name',
+				'order'		=> 'ASC',
+				'get'		=> 'all',
+				'parent'	=> 0,
+			);
+			$terms = get_terms( 'product-tag', $args );
+			if(count($terms) > 0) {
+				$brandName = getBrandName();
+
+				// 最上位の商品カテゴリのリンクを設置
+				foreach ( $terms as $term )
+					// 現在のブランドの商品カテゴリのみ処理
+					if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $term->term_id) == $brandName)
+						echo '<a href="', get_term_link($term), '">', $term->name, '</a>　';
+				
+				// 各商品カテゴリの商品を表示
+				foreach ( $terms as $term ) {
+					// 現在のブランドの商品カテゴリのみ処理
+					if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $term->term_id) == $brandName) {
+						display_products($term);
+					}
+				}
+			}
+		} else {
+			// ブランドのトップページ
+			if ( have_posts() ) : while ( have_posts() ) : the_post();
+	?>
+				<div class="page-title">
+				     <h1><?php the_title(); echo 'とは'; ?></h1>
+				</div>
+
+				<article class="container">
+				    <div>
+				        <div class="col span_3 author-img"><?php the_post_thumbnail(); ?></div>
+	  	                <div class="col span_9">
+	<?php if(get_post_meta($post->ID, '画像1', true)): ?><a href="<?php $Image = wp_get_attachment_image_src(get_post_meta($post->ID, '画像1', true), 'full'); echo $Image[0]; ?>" class="lightbox"><?php echo wp_get_attachment_image(get_post_meta($post->ID, '画像1', true),'custom_size'); ?></a><?php else : ?><?php endif; ?>
+		                </div>
+               		</div>
+		            <!-- /.row -->
                
-               <div class="row team-content">
-                    <?php the_content(); ?>
-               </div>
-               <!-- /.row -->
-          </article>
-          <!-- /.container -->
-          <?php endwhile; endif; ?>
-     </div>
-     <!-- /.page-wrap -->
-</div>
-<!-- /#main -->
-</td>
-</tr>
-</tbody></table>
- 
-<?php get_footer(); ?>
+		            <div>
+		                 <?php the_excerpt(); ?>
+		                 <p></p>
+		                 <?php echo'<a href=".', '?page_type=description">>READ MORE</a><br>'; ?>
+		            </div>
+		            <!-- /.row -->
+	            </article>
+	            <!-- /.container -->
+
+				<!-- 新着記事を取得して表示 -->
+			    <h1><?php echo 'NEWS'; ?></h1>
+				<ul>
+<?php
+					$args = array(
+					    'post_type' => array( 'media', 'information' ),
+					    'posts_per_page' => 3,
+					    'tax_query' => array(
+							array(
+								'taxonomy' => 'brand-tag',
+								'field' => 'slug',
+								'terms' => getBrandName(),
+							)
+						)
+					);
+					$loop = new WP_Query($args);
+					if ( $loop->have_posts() ) : while($loop->have_posts()) : $loop->the_post();
+						printPost();
+					endwhile; endif;
+?>
+				</ul>
+				<p></p>
+			    <h1><?php echo 'NEW ITEM'; ?></h1>
+<?php
+			endwhile; endif;
+		}
+?>
+		</td></tr></table>
+
+
+
+		</div><!-- #content -->
+<?php /*
+	</div><!-- #primary -->
+*/ ?>
+	<?php get_sidebar( 'content' ); ?>
+</div><!-- #main-content -->
+
+<?php
+get_sidebar();
+get_footer();
+

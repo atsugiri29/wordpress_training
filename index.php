@@ -16,13 +16,6 @@
 
 get_header(); ?>
 
-<table cellpadding="0" cellspacing="0"><tbody>
-<tr>
-<td width="250" valign="top">
-<?php get_sidebar(); ?>
-</td>
-<td valign="top">
-
 <div id="main-content" class="main-content">
 
 <?php
@@ -31,42 +24,28 @@ get_header(); ?>
 		get_template_part( 'featured-content' );
 	}
 ?>
-
+<?php /*
 	<div id="primary" class="content-area">
+*/ ?>
 		<div id="content" class="site-content" role="main">
 
 
 
+			<!-- 新着記事を表示 -->
+			<table ><tr valign="top"><td>
 			<h2>NEWS</h2>
 			<ul>
-			    <?php $args = array(
-			        'numberposts' => 20,                //表示（取得）する記事の数
-			        'post_type' => array( /*'post',*/ 'media', 'information', 'product' ),    //投稿タイプの指定
-
+<?php
+			    // 記事を取得して表示
+			    $args = array(
+			        'numberposts' => 20, // 表示する記事の数
+			        'post_type' => array( 'media', 'information' ), //投稿タイプを指定
 			    );
 			    $customPosts = get_posts($args);
-			    if($customPosts) : foreach($customPosts as $post) : setup_postdata( $post ); ?>
-						<div>
-						<?php the_post_thumbnail(array(68,68)); ?>
-						<?php echo get_the_date("Y.n.j"); ?>
-						<br>
-
-						<?php $tags = wp_get_post_tags( $post->ID ); ?>
-						<?php for($cnt = 0; $cnt < count($tags); $cnt++) { ?>
-							<?php echo $tags[$cnt]->name, " "; ?>
-						<?php } ?>
-						</div>
-
-						<div>
-						<u><b><a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></b></u>
-						<br>
-						<?php echo mb_substr ( get_the_content() , 0, 150 ), "..."; ?>
-						</div>
-						<p></p>
-				<?php /*
-				        <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
-				*/ ?>
-				    <?php endforeach; ?>
+			    if($customPosts) : foreach($customPosts as $post) : setup_postdata( $post );
+			    	printPost();
+			    endforeach;
+?>
 			</ul>
 
 
@@ -74,20 +53,44 @@ get_header(); ?>
 			    <?php else : //記事が無い場合 ?>
 			        <li><p>記事はまだありません。</p></li>
 			    <?php endif;
-    wp_reset_postdata(); //クエリのリセット ?>
+			wp_reset_postdata(); //クエリのリセット ?>
+
+			</td></tr></table>
 
 
+		<?php
+/*
+			if ( have_posts() ) :
+				// Start the Loop.
+				while ( have_posts() ) : the_post();
+
+					/*
+					 * Include the post format-specific template for the content. If you want to
+					 * use this in a child theme, then include a file called called content-___.php
+					 * (where ___ is the post format) and that will be used instead.
+					 */
+/*
+					get_template_part( 'content', get_post_format() );
+
+				endwhile;
+				// Previous/next post navigation.
+				twentyfourteen_paging_nav();
+
+			else :
+				// If no content, include the "No posts found" template.
+				get_template_part( 'content', 'none' );
+
+			endif;
+*/
+		?>
 
 		</div><!-- #content -->
+<?php /*
 	</div><!-- #primary -->
+*/ ?>
 	<?php get_sidebar( 'content' ); ?>
 </div><!-- #main-content -->
 
-</td>
-</tr>
-</tbody></table>
-
 <?php
-// get_sidebar();
+get_sidebar();
 get_footer();
-?>

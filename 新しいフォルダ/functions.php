@@ -652,7 +652,7 @@ add_action( 'init', 'register_cpt_product' );
         'labels' => $labels,
         'hierarchical' => false,
         
-        'supports' => array( 'title', 'editor', 'excerpt' ),
+        'supports' => array( 'title', 'editor' ),
         'taxonomies' => array( 'brand-tag' ),
         'public' => true,
         'show_ui' => true,
@@ -830,6 +830,7 @@ add_filter('acf/load_field/name=select_brand-tag_in_product-tag', 'my_acf_load_f
 // 特定の商品カテゴリに属する商品を一覧表示する
 // 商品のみのシンプルな表示で、商品カテゴリ名は表示しない
 function display_products_simple($productTagName /* (文字列)商品カテゴリ名 */) {
+
 	// 該当の商品を全て取得
 	$args = array(
 	    'post_type' => 'product',
@@ -854,8 +855,8 @@ function display_products_simple($productTagName /* (文字列)商品カテゴ�
 			if( $postCount % $POSTS_PER_ROW == 0 ) echo '<tr>';
 			echo '<td>';
 				$thumbnail = wp_get_attachment_image_src(post_custom('画像1'),'thumbnail' );
-				echo '<a  href="', get_permalink($POST), '"><img src="', $thumbnail[0], '" /></a><br>';
-				echo '<a  href="', get_permalink($POST), '">', the_title(), '</a>';
+				echo '<img src="' . $thumbnail[0] . '" /><br>';
+				the_title();
 			echo '</td>';
 			if( $postCount++ % $POSTS_PER_ROW == $POSTS_PER_ROW - 1 ) echo '</tr>';
 		}
@@ -878,14 +879,14 @@ function display_products($productCat /*商品カテゴリオブジェクト*/ )
 	$childCats = get_categories( $args );
 
 	// その商品カテゴリに属する商品一覧を表示
-	echo '<h1>' . $productCat->name . '</h1>';
 	if(count($childCats) == 0) {
 		// 子カテゴリを持たない場合
+		echo '<h1>' . $productCat->name . '</h1>';
 		display_products_simple($productCat->name);
 	} else {
 		// 子カテゴリを持つ場合
 		foreach ($childCats as $childCat) {
-			echo '<b>' . $childCat->name . '</b>';
+			echo '<h1>' . $childCat->name . '</h1>';
 			display_products_simple($childCat->name);
 		}
 	}
@@ -895,9 +896,8 @@ function display_products($productCat /*商品カテゴリオブジェクト*/ )
 
 // 現在の投稿のブランドタグからブランド名を返す
 // 戻り値:(文字列|null)ブランド名
-function getBrandName() {
+function get_brand_name() {
 	global $post;
-	have_posts(); // 2回呼ぶ必要がある
 	if ( have_posts() ) {
 		the_post();
 		$terms = get_the_terms( $post->ID, 'brand-tag' );
@@ -906,52 +906,6 @@ function getBrandName() {
 		return $term->name;
 	}
 	return null;
-}
-
-
-
-// 投稿についているタグを表示する
-function printTags(
-	$postId, // 投稿のID
-	$printsPostType = true // (boolean)投稿の種類を表示するか
-) {
-	// ブランドタグを表示
-	$terms = get_the_terms($postId, 'brand-tag');
-	if($terms != false) {
-		foreach($terms as $term)
-			echo $term->name, '　';
-	}
-
-	if($printsPostType) {
-		// 投稿の種類を表すタグを表示。これは内部的にはタグではない
-		$postType = get_post_type();
-		if($postType == 'media')
-			echo 'MEDIA　';
-		if($postType == 'information')
-			echo 'INFORMATION　';
-	}
-}
-
-
-
-// メディアなどの投稿記事を一覧表示において1つ表示する
-function printPost() {
-?>
-	<div>
-		<?php the_post_thumbnail(array(68,68)); ?>
-		<?php echo get_the_date("Y.n.j"); ?>
-		<br>
-
-		<?php printTags($post->ID); ?>
-	</div>
-	<div>
-		<u><b><a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></b></u>
-		<br>
-		<?php echo mb_substr ( get_the_content() , 0, 150 ), "..."; ?>
-	</div>
-	<p></p>
-
-<?php
 }
 
 
