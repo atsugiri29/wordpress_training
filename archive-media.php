@@ -17,13 +17,22 @@
 
 
 		<table><tr valign="top"><td>
-	<?php
+<?php
 		echo '<h1>MEDIA</h1><br>';
-	    	$loop = new WP_Query(array("post_type" => "media"));
-	    	if ( $loop->have_posts() ) : while($loop->have_posts()): $loop->the_post();
-				printPost();
-          	endwhile; endif; ?>
-		</td></tr></table>
+    	$loop = new WP_Query(array(
+    			'post_type' => 'media',
+    			'posts_per_page' => 2,
+				'orderby' => 'modified',
+			    'paged' => $paged,
+		));
+    	if ($loop->have_posts()) : while($loop->have_posts()): $loop->the_post();
+			printPost();
+      	endwhile; endif;
+
+		wp_pagenavi(array('query' => $loop));
+		wp_reset_postdata(); //クエリのリセット
+?>
+ 		</td></tr></table>
 
 
 

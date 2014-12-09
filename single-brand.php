@@ -36,6 +36,7 @@
 			</article>
 <?php
 			endwhile; endif;
+			wp_reset_postdata();
 		} else if($pageType == 'news') {
 
 			// ブランドの記事一覧のページ
@@ -43,10 +44,12 @@
 ?>
 			<ul>
 <?php
+//				$paged = get_query_var('paged')? get_query_var('paged') : 1;
 				// 記事を取得して表示
 				$args = array(
 				    'post_type' => array( 'media', 'information' ),
-				    'posts_per_page' => 100,
+				    'posts_per_page' => 2,
+				    'paged' => $paged,
 				    'tax_query' => array(
 						array(
 							'taxonomy' => 'brand-tag',
@@ -59,6 +62,16 @@
 				if ( $loop->have_posts() ) : while($loop->have_posts()) : $loop->the_post();
 					printPost();
 				endwhile; endif;
+/*
+// メインクエリの抽出件数によって表示されるページを超えたページへ移動しようとするとリダイレクトが起こって1ページ目に戻されるらしい
+// functions.phpのmy_disable_redirect_canonicalでリダイレクトを抑制して応急対処しているが、このままで問題ないかも
+				// 内部データ確認用
+				echo $paged, '<br>';
+				echo $wp_query->found_posts, '<br>';
+				echo $loop->found_posts;
+*/
+				wp_pagenavi(array('query' => $loop));
+				wp_reset_postdata();
 ?>
 			</ul>
 <?php
@@ -80,14 +93,14 @@
 				// 最上位の商品カテゴリのリンクを設置
 				foreach ( $terms as $term )
 					// 現在のブランドの商品カテゴリのみ処理
-					if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $term->term_id) == $brandName)
+					if( get_field('brand-tagOfProduct-tag', 'product-tag_' . $term->term_id) == $brandName)
 						echo '<a href="', get_term_link($term), '">', $term->name, '</a>　';
 				
 				// 各商品カテゴリの商品を表示
 				foreach ( $terms as $term ) {
 					// 現在のブランドの商品カテゴリのみ処理
-					if( get_field('select_brand-tag_in_product-tag', 'product-tag_' . $term->term_id) == $brandName) {
-						display_products($term);
+					if( get_field('brand-tagOfProduct-tag', 'product-tag_' . $term->term_id) == $brandName) {
+						printProducts($term);
 					}
 				}
 			}
@@ -136,12 +149,14 @@
 					if ( $loop->have_posts() ) : while($loop->have_posts()) : $loop->the_post();
 						printPost();
 					endwhile; endif;
+					wp_reset_postdata();
 ?>
 				</ul>
 				<p></p>
 			    <h1><?php echo 'NEW ITEM'; ?></h1>
 <?php
 			endwhile; endif;
+			wp_reset_postdata();
 		}
 ?>
 		</td></tr></table>

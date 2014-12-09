@@ -39,7 +39,10 @@
                <!-- /.row -->
           </article>
           <!-- /.container -->
-          <?php endwhile; endif; ?>
+<?php
+          endwhile; endif;
+          wp_reset_postdata();
+?>
 		</td></tr></table>
 
 

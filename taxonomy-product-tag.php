@@ -20,7 +20,7 @@
 <?php
 		// その商品カテゴリが子カテゴリを持つか
 		$productCat = $wp_query->get_queried_object(); // 商品カテゴリ
-		display_products($productCat);
+		printProducts($productCat);
 
 ?>
 

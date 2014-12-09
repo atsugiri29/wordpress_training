@@ -38,18 +38,22 @@ get_header(); ?>
 <?php
 			    // 記事を取得して表示
 			    $args = array(
-			        'numberposts' => 20, // 表示する記事の数
+			        'numberposts' => 3, // 表示する記事の数
 			        'post_type' => array( 'media', 'information' ), //投稿タイプを指定
+					'orderby' => 'modified',
+					'paged' => $paged,
 			    );
 			    $customPosts = get_posts($args);
 			    if($customPosts) : foreach($customPosts as $post) : setup_postdata( $post );
 			    	printPost();
 			    endforeach;
+/*
+wp_pagenavi();
+echo $wp_query->found_posts;
+echo '<pre>', print_r($wp_query), '</pre>';
+*/
 ?>
 			</ul>
-
-
-
 			    <?php else : //記事が無い場合 ?>
 			        <li><p>記事はまだありません。</p></li>
 			    <?php endif;

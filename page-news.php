@@ -21,22 +21,27 @@
 		<table><tr valign="top"><td>
 			<h2>NEWS</h2>
 			<ul>
-	<?php
-			    // 記事を取得して表示
-			    $args = array(
-			        'numberposts' => 20, // 表示する記事の数
-			        'post_type' => array( 'media', 'information' ), //投稿タイプを指定
-			    );
-			    $customPosts = get_posts($args);
-			    if($customPosts) : foreach($customPosts as $post) : setup_postdata( $post );
-			    	printPost();
-			    endforeach;
-	?>
+<?php
+// $paged = get_query_var('paged') ? get_query_var('paged') : 1 ; // pagedが固定ページで取得できない場合があるらしい
+?>
+<?php
+	    	$loop = new WP_Query(array(
+	    			'post_type' => array('information', 'media'),
+				    'posts_per_page' => 2,
+					'orderby' => 'modified',
+				    'paged' => $paged,
+			));
+	    	if ( $loop->have_posts() ) : while($loop->have_posts()): $loop->the_post();
+				printPost();
+          	endwhile;
+			wp_pagenavi(array('query' => $loop));
+			wp_reset_postdata();
+?>
 			</ul>
 		    <?php else : //記事が無い場合 ?>
 		        <li><p>記事はまだありません。</p></li>
-		    <?php endif;
-			wp_reset_postdata(); //クエリのリセット ?>
+		    <?php endif; ?>
+
 		</td></tr></table>
 
 

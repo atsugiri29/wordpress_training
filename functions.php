@@ -594,6 +594,7 @@ function my_custom_init() {
 
     register_post_type( 'information', $args );
 
+// 商品のカスタム投稿を登録
 add_action( 'init', 'register_cpt_product' );
 
     $labels = array( 
@@ -614,7 +615,7 @@ add_action( 'init', 'register_cpt_product' );
     $args = array( 
         'labels' => $labels,
         'hierarchical' => false,
-        'supports' => array( 'title', 'custom-fields' ),
+        'supports' => array( 'title' ),
         'taxonomies' => array( 'brand-tag', 'product-tag' ),
         'public' => true,
         'show_ui' => true,
@@ -820,16 +821,16 @@ function my_acf_load_field_brand_select( $field ){
 	$tags = get_terms( 'brand-tag' );
 	foreach ( $tags as $tag )
 		$field['choices'][ $tag->name ] = $tag->name;
-	wp_reset_postdata();
+//	wp_reset_postdata();
 	return $field;
 }
-add_filter('acf/load_field/name=select_brand-tag_in_product-tag', 'my_acf_load_field_brand_select'); 
+add_filter('acf/load_field/name=brand-tagOfProduct-tag', 'my_acf_load_field_brand_select'); 
 
 
 
 // 特定の商品カテゴリに属する商品を一覧表示する
 // 商品のみのシンプルな表示で、商品カテゴリ名は表示しない
-function display_products_simple($productTagName /* (文字列)商品カテゴリ名 */) {
+function printProductsSimple($productTagName /* (文字列)商品カテゴリ名 */) {
 	// 該当の商品を全て取得
 	$args = array(
 	    'post_type' => 'product',
@@ -861,13 +862,14 @@ function display_products_simple($productTagName /* (文字列)商品カテゴ�
 		}
 		echo '</table>';
 	}
+	wp_reset_postdata();
 
 }
 
 
 
 // 特定のカテゴリに属する商品を一覧表示する。子カテゴリに属するものを含む
-function display_products($productCat /*商品カテゴリオブジェクト*/ ) {
+function printProducts($productCat /* 商品カテゴリオブジェクト */ ) {
 	$args = array(
 		'parent'                 => $productCat->term_id,
 		'orderby'                  => 'name',
@@ -881,12 +883,12 @@ function display_products($productCat /*商品カテゴリオブジェクト*/ )
 	echo '<h1>' . $productCat->name . '</h1>';
 	if(count($childCats) == 0) {
 		// 子カテゴリを持たない場合
-		display_products_simple($productCat->name);
+		printProductsSimple($productCat->name);
 	} else {
 		// 子カテゴリを持つ場合
 		foreach ($childCats as $childCat) {
 			echo '<b>' . $childCat->name . '</b>';
-			display_products_simple($childCat->name);
+			printProductsSimple($childCat->name);
 		}
 	}
 }
@@ -903,8 +905,11 @@ function getBrandName() {
 		$terms = get_the_terms( $post->ID, 'brand-tag' );
 		if(count($terms) == 1)
 			foreach ( $terms as $term ); // $termのセットのための空ループ
-		return $term->name;
+		$name = $term->name;
+		wp_reset_postdata();
+		return $name;
 	}
+	wp_reset_postdata();
 	return null;
 }
 
@@ -952,6 +957,37 @@ function printPost() {
 	<p></p>
 
 <?php
+}
+
+
+
+/*
+function set_my_query( $wp_query ) {
+    if ( is_admin() || ! $wp_query->is_main_query() )
+        return;
+
+    if ($wp_query->is_archive('information'))
+        $wp_query->set( 'posts_per_page', 1 ); // 表示件数
+    if ($wp_query->is_page('news')) {
+        $wp_query->set( 'posts_per_page', 2 ); // 表示件数
+    	$wp_query->set( 'post_type', array('media', 'information')); // 表示件数
+        $wp_query->set( 'orderby', 'modified' ); // 表示件数
+        $wp_query->set( 'paged', $paged ); // 表示件数
+    }
+}
+add_action( 'pre_get_posts', 'set_my_query' );
+*/
+
+
+
+// 一部ページでリダイレクトをしないように設定
+// リダイレクトによって次ページへ移動できない不具合があるため
+add_filter('redirect_canonical','my_disable_redirect_canonical');
+
+function my_disable_redirect_canonical( $redirect_url ) {
+    if ( is_singular('brand') )
+    $redirect_url = false;
+    return $redirect_url;
 }
 
 
